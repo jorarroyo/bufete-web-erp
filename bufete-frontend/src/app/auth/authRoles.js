@@ -1,0 +1,46 @@
+/**
+ * Authorization Roles
+ */
+const authRoles = {
+  admin: ['USUARIO_ADMIN'],
+  config: ['USUARIO_ADMIN', 'USUARIO_MENU', 'ROL_MENU'],
+  config_user: ['USUARIO_ADMIN', 'USUARIO_MENU'],
+  config_role: ['USUARIO_ADMIN', 'ROL_MENU'],
+  dashboard: ['USUARIO_ADMIN', 'DASHBOARD_MENU'],
+  recordFile: [
+    'USUARIO_ADMIN',
+    'CLIENTE_MENU',
+    'EMPLEADO_MENU',
+    'EXPEDIENTE_MENU',
+    'DOCUMENTO_MENU',
+    'EXPEDIENTE_ACTIVIDAD_MENU',
+    'AGENDA_PROCURADOR_MENU',
+    'AGENDA_LIQUIDACION_MENU',
+  ],
+  recordFile_client: ['USUARIO_ADMIN', 'CLIENTE_MENU'],
+  recordFile_employee: ['USUARIO_ADMIN', 'EMPLEADO_MENU'],
+  recordFile_record: ['USUARIO_ADMIN', 'EXPEDIENTE_MENU'],
+  recordFile_document: ['USUARIO_ADMIN', 'DOCUMENTO_MENU'],
+  recordFile_activity: ['USUARIO_ADMIN', 'EXPEDIENTE_ACTIVIDAD_MENU'],
+  recordFile_proctor: ['USUARIO_ADMIN', 'AGENDA_PROCURADOR_MENU'],
+  recordFile_settle: ['USUARIO_ADMIN', 'AGENDA_LIQUIDACION_MENU'],
+  inventory: ['USUARIO_ADMIN', 'PRODUCTO_MENU', 'TIMBRE_FISCAL_INVENTARIO_MENU'],
+  inventory_product: ['USUARIO_ADMIN', 'PRODUCTO_MENU'],
+  inventory_stamp: ['USUARIO_ADMIN', 'TIMBRE_FISCAL_INVENTARIO_MENU'],
+  catalogs: ['USUARIO_ADMIN', 'ACTIVIDAD_MENU', 'INSTITUTION_MENU'],
+  catalogs_activity: ['USUARIO_ADMIN', 'ACTIVIDAD_MENU'],
+  catalogs_institution: ['USUARIO_ADMIN', 'INSTITUTION_MENU'],
+  billingProcess: ['USUARIO_ADMIN', 'DOCUMENTOS_GASTOS_MENU', 'LIQUIDACION_FACTURA_MENU', 'FACTURA_MENU', 'REPORTES_FACTURA_MENU'],
+  billingProcess_expenses: ['USUARIO_ADMIN', 'DOCUMENTOS_GASTOS_MENU'],
+  billingProcess_receiptSettlement: ['USUARIO_ADMIN', 'LIQUIDACION_FACTURA_MENU'],
+  billingProcess_receipts: ['USUARIO_ADMIN', 'FACTURA_MENU'],
+  billingProcess_receipt_reports: ['USUARIO_ADMIN', 'REPORTES_FACTURA_MENU', 'LISTADO_FACTURA_MENU'],
+  billingProcess_receipt_report_list: ['USUARIO_ADMIN', 'REPORTES_FACTURA_MENU', 'LISTADO_FACTURA_MENU'],
+  accountReceivable: ['USUARIO_ADMIN', 'RECIBO_FACTURA_MENU'],
+  accountReceivable_payment_receipts: ['USUARIO_ADMIN', 'RECIBO_FACTURA_MENU'],
+  accountable: ['USUARIO_ADMIN', 'NOMENCLATURA_CONTABLE_MENU'],
+  accountable_nomenclature: ['USUARIO_ADMIN', 'NOMENCLATURA_CONTABLE_MENU'],
+  onlyGuest: [],
+};
+
+export default authRoles;

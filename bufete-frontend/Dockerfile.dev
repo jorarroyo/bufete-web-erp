@@ -1,0 +1,14 @@
+FROM node:10.16.3-alpine
+WORKDIR '/app'
+COPY ./package.json ./
+
+# Arguments
+ARG REACT_APP_API_BASE_URL
+ENV REACT_APP_API_BASE_URL=${REACT_APP_API_BASE_URL}
+ENV NODE_ENV development
+
+RUN yarn install
+# RUN yarn upgrade
+COPY . .
+CMD ["yarn", "start"]
+

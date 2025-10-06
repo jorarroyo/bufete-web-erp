@@ -1,0 +1,73 @@
+# Docker Compose file Reference (https://docs.docker.com/compose/compose-file/)
+
+version: '3.7'
+
+# Define services
+services:
+  # App backend service
+  app-server:
+    # Configuration for building the docker image for the backend service
+    build:
+      context: bufete-backend # Use an image built from the specified dockerfile in the `polling-app-server` directory.
+      dockerfile: Dockerfile.dev
+    ports:
+      - "5000:5000" # Forward the exposed port 8080 on the container to port 8080 on the host machine
+    restart: always
+    depends_on: 
+      - db # This service depends on mysql. Start that first.
+    environment: # Pass environment variables to the service
+      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/bufete_app?useSSL=false&serverTimezone=America/Guatemala&useLegacyDatetimeCode=false&allowPublicKeyRetrieval=true
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: mysqllocal
+      SPRING_PROFILES_ACTIVE: dev
+    volumes:
+      - upload-files:/uploads
+    networks: # Networks to join (Services on the same network can communicate with each other using their name)
+      - backend
+      - frontend
+
+  # Frontend Service 
+  app-client:
+    build:
+      context: bufete-frontend # Use an image built from the specified dockerfile in the `polling-app-client` directory.
+      dockerfile: Dockerfile.dev
+      args:
+        REACT_APP_API_BASE_URL: http://localhost:5000/api
+    ports:
+      - "3001:80" # Forward the exposed port 80 on the container to port 80 on the host machine
+    restart: always
+    depends_on:
+      - app-server
+    networks:
+      - frontend  
+
+  # Database Service (Mysql)
+  db:
+    image: mysql:8.0.17
+    ports:
+      - "3307:3306"
+    restart: always
+    environment:
+      MYSQL_DATABASE: bufete_app
+      MYSQL_USER: bufete
+      MYSQL_PASSWORD: bufete
+      MYSQL_ROOT_PASSWORD: mysqllocal
+    volumes:
+      - db-data:/var/lib/mysql
+    networks:
+      - backend  
+  
+# Volumes
+volumes:
+  db-data:
+  upload-files:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: "${PWD}/uploads"
+
+# Networks to be created to facilitate communication between containers
+networks:
+  backend:
+  frontend:    

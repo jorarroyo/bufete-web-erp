@@ -1,0 +1,45 @@
+# Docker Compose file Reference (https://docs.docker.com/compose/compose-file/)
+
+version: '3.3'
+
+# Define services
+services:
+  # Database Migration
+  flyway:
+    image: flyway/flyway:latest
+    command: -url=jdbc:mysql://db:3306/bufete_app?useSSL=false&serverTimezone=America/Guatemala&useLegacyDatetimeCode=false&allowPublicKeyRetrieval=true -user=root -password=mysqllocal migrate
+    volumes:
+      - ./migrations/sql:/flyway/sql
+    depends_on:
+      - db
+    networks:
+      - backend
+
+  # Database Service (Mysql)
+  db:
+    image: mysql:8.0.17
+    ports:
+      - "3307:3306"
+    restart: always
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    environment:
+      MYSQL_DATABASE: bufete_app
+      MYSQL_USER: bufete
+      MYSQL_PASSWORD: bufete
+      MYSQL_ROOT_PASSWORD: mysqllocal
+    volumes:
+      - db-data:/var/lib/mysql
+    networks:
+      - backend
+    healthcheck:
+      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+
+# Volumes
+volumes:
+  db-data:
+
+# Networks to be created to facilitate communication between containers
+networks:
+  backend:

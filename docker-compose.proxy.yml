@@ -1,0 +1,66 @@
+# Docker Compose file Reference (https://docs.docker.com/compose/compose-file/)
+
+version: '3'
+
+# Define services
+services:
+  nginx:
+    restart: always
+    build:
+      dockerfile: Dockerfile.dev
+      context: ./nginx
+    ports:
+      - '3001:80'
+
+  # App backend service
+  app-server:
+    # Configuration for building the docker image for the backend service
+    build:
+      context: bufete-backend # Use an image built from the specified dockerfile in the `polling-app-server` directory.
+      dockerfile: Dockerfile.dev
+    restart: always
+    depends_on: 
+      - db # This service depends on mysql. Start that first.
+    environment: # Pass environment variables to the service
+      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/bufete_app?useSSL=false&serverTimezone=America/Guatemala&useLegacyDatetimeCode=false&allowPublicKeyRetrieval=true
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: mysqllocal
+      SPRING_PROFILES_ACTIVE: dev
+    volumes:
+      - upload-files:/uploads
+
+  # Frontend Service 
+  app-client:
+    build:
+      context: bufete-frontend # Use an image built from the specified dockerfile in the `polling-app-client` directory.
+      dockerfile: Dockerfile.dev
+      args:
+        REACT_APP_API_BASE_URL: /api
+    restart: always
+    depends_on:
+      - app-server 
+
+  # Database Service (Mysql)
+  db:
+    image: mysql:8.0.17
+    ports:
+      - "3307:3306"
+    restart: always
+    environment:
+      MYSQL_DATABASE: bufete_app
+      MYSQL_USER: bufete
+      MYSQL_PASSWORD: bufete
+      MYSQL_ROOT_PASSWORD: mysqllocal
+    volumes:
+      - db-data:/var/lib/mysql
+  
+# Volumes
+volumes:
+  db-data:
+  upload-files:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: "${PWD}/uploads"
+   

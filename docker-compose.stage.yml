@@ -1,0 +1,82 @@
+# Docker Compose file Reference (https://docs.docker.com/compose/compose-file/)
+
+version: '3.3'
+
+# Define services
+services:
+  # nginx reverse proxy
+  nginx:
+    restart: always
+    build:
+      dockerfile: Dockerfile
+      context: ./nginx
+    ports:
+      - '3001:80'
+
+  # App backend service
+  app-server:
+    # Configuration for building the docker image for the backend service
+    image: jarroyo/bufete-backend:1.2.1.4
+    restart: always
+    depends_on: 
+      - db # This service depends on mysql. Start that first.
+    environment: # Pass environment variables to the service
+      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/bufete_app_stage?useSSL=false&serverTimezone=America/Guatemala&useLegacyDatetimeCode=false&allowPublicKeyRetrieval=true
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: mysqllocal
+      SPRING_PROFILES_ACTIVE: prod
+    volumes:
+      - upload-files:/uploads
+
+  # App FEL service
+  app-fel:
+    image: jarroyo/bufete-fel:1.0.0.0
+    restart: always
+    depends_on:
+      - app-server
+
+  # Frontend Service 
+  app-client:
+    image: jarroyo/bufete-frontend:1.2.1.4
+    restart: always
+    depends_on:
+      - app-server 
+
+  # Database Migration
+  flyway:
+    image: flyway/flyway:latest
+    command: -url=jdbc:mysql://db:3306/bufete_app_stage?useSSL=false&serverTimezone=America/Guatemala&useLegacyDatetimeCode=false&allowPublicKeyRetrieval=true -user=root -password=mysqllocal migrate
+#    restart: always
+    volumes:
+      - ./migrations/sql:/flyway/sql
+    depends_on:
+      - db
+
+  # Database Service (Mysql)
+  db:
+    image: mysql:8.0.17
+    ports:
+      - "3308:3306"
+    restart: always
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    environment:
+      MYSQL_DATABASE: bufete_app_stage
+      MYSQL_USER: bufete
+      MYSQL_PASSWORD: bufete
+      MYSQL_ROOT_PASSWORD: mysqllocal
+    volumes:
+      - db-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+  
+# Volumes
+volumes:
+  db-data:
+  upload-files:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: "${PWD}/uploads"  

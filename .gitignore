@@ -1,0 +1,13 @@
+# IntelliJ-specific files
+.idea/
+*.iml
+
+# Build artifacts
+target/
+build/
+
+# Logs and temporary files
+*.log
+
+# Specific migrations
+migracionExpedientes/
